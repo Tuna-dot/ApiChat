@@ -8,7 +8,6 @@ import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.RecyclerView
 import com.example.telegram.databinding.ItemMessageBinding
 
-
 class ChatAdapter(
     private val click: (ChatModel) -> Unit,
     private val longClick: (ChatModel) -> Unit

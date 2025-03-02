@@ -1,6 +1,5 @@
 package com.example.telegram.view.fragment
 
-import android.annotation.SuppressLint
 import android.os.Bundle
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
@@ -16,9 +15,10 @@ import androidx.lifecycle.repeatOnLifecycle
 import com.example.telegram.databinding.FragmentChatBinding
 import com.example.telegram.models.model.ChatModel
 import com.example.telegram.view.adapters.ChatAdapter
+import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
 
-
+@AndroidEntryPoint
 class ChatFragment : Fragment() {
     private val viewModel: ChatViewModel by viewModels()
     private var _binding: FragmentChatBinding? = null
@@ -46,7 +46,7 @@ class ChatFragment : Fragment() {
         binding.recyclerView.adapter = adapter
         viewModel.getChat(777)
         viewModel.messages.observe(viewLifecycleOwner) { messages ->
-            adapter.submitList(messages)
+            adapter.submitList(messages) 
         }
         viewLifecycleOwner.lifecycleScope.launch {
             repeatOnLifecycle(Lifecycle.State.STARTED) {
@@ -78,7 +78,11 @@ class ChatFragment : Fragment() {
     }
 
     private fun setupListeners() {
-
+        binding.btnAction.setOnClickListener{
+            val message = binding.etMessage.text.toString().trim()
+            message.let {viewModel.sendMessage(777, message, "senderId", "receiverId")
+                binding.etMessage.text.clear()  }
+        }
     }
 
     private fun showMessage(messange: ChatModel) {
@@ -88,7 +92,7 @@ class ChatFragment : Fragment() {
         builder.setView(editText)
         builder.setPositiveButton("Сохранить") { _, _ ->
             val text = editText.text.toString().trim()
-//            text.let { viewModel.updateMessage(messange.id, text) } }
+            text.let { viewModel.updateMessage(messange.chatId!!, messange.id!!, text) }
             builder.setNegativeButton("Отмена") { dialog, _ ->
                 dialog.cancel()
                 dialog.dismiss()
@@ -103,7 +107,7 @@ class ChatFragment : Fragment() {
         builder.setTitle("Удалить сообщение?")
         builder.setMessage("Вы уверены, что хотите удалить это сообщение?")
         builder.setPositiveButton("Да") { _, _ ->
-//            viewModel.deleteMessage(messange.id)
+            viewModel.deleteMessage(messange.chatId!!, messange.id!!)
         }
         builder.setNegativeButton("Нет") { dialog, _ ->
             dialog.cancel()
